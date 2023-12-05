@@ -19,7 +19,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public void register(String account, String password) {
         //可以加密密码.加入到数据库之前就加密.
-
         userMapper.add(account,password);
     }
 }

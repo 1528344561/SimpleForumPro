@@ -1,14 +1,17 @@
 package com.example.simpleforumpro.controller;
 
+import com.example.simpleforumpro.JwtUtil.JwtUtil;
 import com.example.simpleforumpro.pojo.Result;
 import com.example.simpleforumpro.pojo.User;
 import com.example.simpleforumpro.service.UserService;
 import jakarta.validation.constraints.Pattern;
+import org.apache.logging.log4j.message.ReusableMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -28,5 +31,40 @@ public class UserController {
         else {
             return Result.error("用户名已存在");
         }
+    }
+    @PostMapping("/login")
+    public Result<String> login(@Pattern(regexp = "^\\S{5,16}$") String account,@Pattern(regexp = "^\\S{5,16}$") String password){
+        User u = userService.findByUserAccount(account);
+
+        if(u==null) {
+            return Result.error("账号不存在");
+        }
+
+        if(password.equals(u.getPassword())==false) {
+            return Result.error("密码错误");
+        }
+
+        Map<String,Object> claims = new HashMap<>();
+        claims.put("id",u.getId());
+        claims.put("account",u.getAccount());
+        String token = JwtUtil.genToken(claims);
+        return Result.success(token);
+    }
+    @GetMapping("/userInfo")
+    public Result<User> getUserInfo(@RequestHeader(name="Authorization")String token){
+        //查询指定用户名的用户
+        Map<String,Object> map= JwtUtil.parseToken(token);
+        String account = (String) map.get("account");
+        User u = userService.findByUserAccount(account);
+        return Result.success(u);
+    }
+    @GetMapping("/profile")
+    public Result<String> getProfile(){
+        return Result.success("这是一个测试的接口.访问成功.");
+    }
+    @ExceptionHandler(RuntimeException.class)
+    public Result handleValidationException(RuntimeException e) {
+//        e.printStackTrace(); //打印异常信息到控制台
+        return Result.error((e.getMessage() != null) ? e.getMessage() : "操作失败");
     }
 }
