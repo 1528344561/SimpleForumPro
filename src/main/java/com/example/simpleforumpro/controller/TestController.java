@@ -1,6 +1,6 @@
 package com.example.simpleforumpro.controller;
 
-import com.example.simpleforumpro.JwtUtil.JwtUtil;
+import com.example.simpleforumpro.utils.JwtUtil;
 import com.example.simpleforumpro.pojo.Result;
 import com.example.simpleforumpro.pojo.User;
 import com.example.simpleforumpro.service.UserService;

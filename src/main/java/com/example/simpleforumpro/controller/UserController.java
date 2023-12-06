@@ -1,11 +1,12 @@
 package com.example.simpleforumpro.controller;
 
-import com.example.simpleforumpro.JwtUtil.JwtUtil;
+import com.example.simpleforumpro.utils.JwtUtil;
 import com.example.simpleforumpro.pojo.Result;
 import com.example.simpleforumpro.pojo.User;
 import com.example.simpleforumpro.service.UserService;
+import com.example.simpleforumpro.utils.ThreadLocalUtil;
 import jakarta.validation.constraints.Pattern;
-import org.apache.logging.log4j.message.ReusableMessage;
+import org.hibernate.validator.constraints.URL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -50,13 +51,35 @@ public class UserController {
         String token = JwtUtil.genToken(claims);
         return Result.success(token);
     }
+//    @GetMapping("/userInfo")
+//    public Result<User> getUserInfo(@RequestHeader(name="Authorization")String token){
+//        //查询指定用户名的用户
+//        String account= (String)JwtUtil.parseToken(token).get("account");
+//        User u = userService.findByUserAccount(account);
+//        return Result.success(u);
+//    }
     @GetMapping("/userInfo")
-    public Result<User> getUserInfo(@RequestHeader(name="Authorization")String token){
+    public Result<User> getUserInfo(){
+        Map<String,Object> map = ThreadLocalUtil.get();
+
         //查询指定用户名的用户
-        Map<String,Object> map= JwtUtil.parseToken(token);
-        String account = (String) map.get("account");
+        String account= (String) map.get("account");
         User u = userService.findByUserAccount(account);
         return Result.success(u);
+    }
+    @PutMapping("/update")
+    public Result<String> update(@RequestBody @Validated User u){
+        Map<String,Object> map = ThreadLocalUtil.get();
+        if(u.getId()!=(map.get("id"))){
+            return Result.error("欲修改的ID与登录ID不匹配");
+        }
+        userService.updateProfile(u.getId(),u.getNickname());
+        return Result.success("ok");
+    }
+    @PatchMapping("/updateAvatar")
+    public Result<String> updateAvatar(@URL String avatarUrl){
+        userService.updateAvatar(avatarUrl);
+        return Result.success("ok");
     }
     @GetMapping("/profile")
     public Result<String> getProfile(){

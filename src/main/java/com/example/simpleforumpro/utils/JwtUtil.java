@@ -1,11 +1,7 @@
-package com.example.simpleforumpro.JwtUtil;
+package com.example.simpleforumpro.utils;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.Claim;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 import java.util.Map;
@@ -39,12 +35,4 @@ public class JwtUtil {
                 .asMap();
     }
 
-    @Test
-    public void testParse(){
-        String token = "";
-        JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256("I_LOVE_SDUST")).build();
-        DecodedJWT decodedJWT = jwtVerifier.verify(token);
-
-        Map<String, Claim> claims = decodedJWT.getClaims();
-    }
 }
