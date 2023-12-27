@@ -4,8 +4,11 @@ import com.example.simpleforumpro.utils.JwtUtil;
 import com.example.simpleforumpro.pojo.Result;
 import com.example.simpleforumpro.pojo.User;
 import com.example.simpleforumpro.service.UserService;
+import com.example.simpleforumpro.utils.MD5Util;
 import com.example.simpleforumpro.utils.ThreadLocalUtil;
 import jakarta.validation.constraints.Pattern;
+import org.apache.logging.log4j.message.ReusableMessage;
+import org.eclipse.jetty.util.security.Credential;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -24,10 +27,12 @@ public class UserController {
     public Result register(@Pattern(regexp = "^\\S{5,16}$") String account,@Pattern(regexp = "^\\S{5,16}$") String password){
         //查询用户
         User u = userService.findByUserAccount(account);
+
         if(u==null) {
             //注册
+            password = MD5Util.encode(password);
             userService.register(account,password);
-            return Result.success();
+            return Result.success("注册成功");
         }
         else {
             return Result.error("用户名已存在");
@@ -40,11 +45,14 @@ public class UserController {
         if(u==null) {
             return Result.error("账号不存在");
         }
+//        应该加密
+//        if(password.equals(u.getPassword())==false) {
+//            return Result.error("密码错误");
+//        }
 
-        if(password.equals(u.getPassword())==false) {
+        if(MD5Util.encode(password).equals(u.getPassword())==false){
             return Result.error("密码错误");
         }
-
         Map<String,Object> claims = new HashMap<>();
         claims.put("id",u.getId());
         claims.put("account",u.getAccount());
@@ -59,13 +67,24 @@ public class UserController {
 //        return Result.success(u);
 //    }
     @GetMapping("/userInfo")
-    public Result<User> getUserInfo(){
-        Map<String,Object> map = ThreadLocalUtil.get();
+    public Result<User> getUserInfo(Integer userId){
+        System.out.println("查询用户,id="+userId);
+        if(userId==null){
+            Map<String,Object> map = ThreadLocalUtil.get();
+            //查询指定用户名的用户
+            String account= (String) map.get("account");
+            User u = userService.findByUserAccount(account);
+            return Result.success(u);
+        }else{
 
-        //查询指定用户名的用户
-        String account= (String) map.get("account");
-        User u = userService.findByUserAccount(account);
-        return Result.success(u);
+            User u = userService.findByUserId(userId.intValue());
+            if(u==null){
+                return Result.error("用户不存在");
+            }else {
+                return Result.success(u);
+            }
+        }
+
     }
     @PutMapping("/update")
     public Result<String> update(@RequestBody @Validated User u){
@@ -73,7 +92,7 @@ public class UserController {
         if(u.getId()!=(map.get("id"))){
             return Result.error("欲修改的ID与登录ID不匹配");
         }
-        userService.updateProfile(u.getId(),u.getNickname());
+        userService.updateProfile(u);
         return Result.success("ok");
     }
     @PatchMapping("/updateAvatar")

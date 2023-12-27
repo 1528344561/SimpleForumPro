@@ -13,3 +13,9 @@
 > 网页的某些内容必须要加以限制访问,如一些信息等,这时如果在每个Controller里面都加上
 > 验证将会导致代码变得冗余,因此可以使用拦截器 interceptor
 > 把token放到请求头中,通过请求头验证是否可以访问.
+
+3. @RequestParam 注解
+> [详情](https://blog.csdn.net/GDFHGFHGFH/article/details/124748026)
+> 加上后,可以指定 required,defaultValue等
+> 还可以用 value="xxx" 匹配参数(当请求的参数和方法参数名不一致时)
+

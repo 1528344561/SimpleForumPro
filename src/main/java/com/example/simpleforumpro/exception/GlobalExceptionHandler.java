@@ -9,6 +9,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public Result handleException(Exception e){
         e.printStackTrace();
-        return Result.error((e.getMessage()!=null)?e.getMessage():"操作失败");
+        return Result.error((e.getMessage()!=null)?e.getMessage():"error");
     }
 }

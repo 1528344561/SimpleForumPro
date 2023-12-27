@@ -10,14 +10,15 @@ import org.apache.ibatis.annotations.Update;
 public interface UserMapper {
     @Select("select * from user where account=#{account}")
     User findByUserName(String account);
-
-    @Insert("insert into user(account,password,create_time,update_time)" +
-            " values(#{account},#{password},now(),now())")
+    @Select("select * from user where id=#{userId}")
+    User findByUserId(int userId);
+    @Insert("insert into user(account,password,nickname,create_time,update_time)" +
+            " values(#{account},#{password},'默认用户名',now(),now())")
     void add(String account, String password);
 
-    @Update("update user set nickname=#{nickname}," +
+    @Update("update user set nickname=#{nickname},user_pic=#{userPic}," +
             "update_time=now() where id=#{id}")
-    void update(int id,String nickname);
+    void update(User u);
 
     @Update("update user set user_pic=#{avatarUrl}," +
             "update_time=now() where id=#{id}")

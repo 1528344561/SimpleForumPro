@@ -21,14 +21,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findByUserId(int userId) {
+        User u = userMapper.findByUserId(userId);
+        return u;
+    }
+
+    @Override
     public void register(String account, String password) {
         //可以加密密码.加入到数据库之前就加密.
         userMapper.add(account,password);
     }
 
     @Override
-    public void updateProfile(int id, String nickname) {
-        userMapper.update(id,nickname);
+    public void updateProfile(User u) {
+        userMapper.update(u);
     }
 
     @Override
